@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: Practice API
+  description: API for managing authentication, people, and clients.
+  version: 1.0.0
+servers:
+  - url: https://developyr-api.azurewebsites.netapi
+paths:
+  /auth:
+    post:
+      summary: Generate JWT
+      description: Generates a JWT token for authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username for authentication.
+                password:
+                  type: string
+                  description: The password for authentication.
+      responses:
+        '200':
+          description: JWT token generated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The generated JWT token.
+                  expires_at:
+                    type: string
+                    format: date-time
+                    description: The expiration time of the token.
+        '401':
+          description: Invalid username or password.
+  /people:
+    get:
+      summary: Get people
+      description: Returns a paginated list of people.
+      parameters:
+        - name: offset
+          in: query
+          description: The starting index of the results.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: The number of results to return.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of people.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  offset:
+                    type: integer
+                    description: The starting index of the results.
+                  limit:
+                    type: integer
+                    description: The number of results returned.
+                  total_items:
+                    type: integer
+                    description: The total number of people available.
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        first_name:
+                          type: string
+                          description: The first name of the person.
+                        last_name:
+                          type: string
+                          description: The last name of the person.
+                        email:
+                          type: string
+                          description: The email address of the person.
+                        address:
+                          type: string
+                          description: The address of the person.
+        '401':
+          description: Unauthorized.
+  /clients:
+    get:
+      summary: Get clients
+      description: Returns a paginated list of clients.
+      parameters:
+        - name: offset
+          in: query
+          description: The starting index of the results.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: The number of results to return.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of clients.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  offset:
+                    type: integer
+                    description: The starting index of the results.
+                  limit:
+                    type: integer
+                    description: The number of results returned.
+                  total_items:
+                    type: integer
+                    description: The total number of clients available.
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The unique ID of the client.
+                        company:
+                          type: string
+                          description: The company name of the client.
+                        name:
+                          type: string
+                          description: The name of the client.
+                        address:
+                          type: string
+                          description: The address of the client.
+                        email:
+                          type: string
+                          description: The email address of the client.
+                        phone:
+                          type: string
+                          description: The phone number of the client.
+                        sales_rep:
+                          type: string
+                          description: The sales representative assigned to the client.
+        '401':
+          description: Unauthorized.
