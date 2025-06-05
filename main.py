@@ -52,7 +52,6 @@ def get_data(offset, limit, data_type: str):
 
 
 
-
 if __name__ == '__main__':
     # get_token()
     data = get_data(0,10,'clients')
