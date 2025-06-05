@@ -20,6 +20,11 @@ def get_token():
         print(json_data)
         with open('token.json','w') as f:
             json.dump(json_data,f)
+        
+        # save to .env
+        with open('.env', 'a') as env_file:
+            env_file.write(f"\nAPI_TOKEN = {json_data['token']}\n")
+        
         return json_data
     else:
         return "Unsuccessful"
