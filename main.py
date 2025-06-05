@@ -39,23 +39,38 @@ def get_data(offset, limit, data_type: str):
     headers = {'Authorization': f'Bearer {token}'}
     # print(headers)
     response = requests.get(api, headers=headers, params=keys_dict)
-    print(response)
-    print(response.url)
-    if response.status_code == 200:
-        print("success")
-        people_data = response.json()['data']
-        # print(people_data)
-        return people_data
+    is_response = check_status_code(response)
+    if not is_response:
+        get_token()
+        with open('token.json') as f:
+            token_dict= json.load(f)
+    # token_dict = get_token()
+        token = token_dict['token']
+        headers = {'Authorization': f'Bearer {token}'}
+        response = requests.get(api, headers=headers, params=keys_dict)
+    
+    people_data = response.json()['data']
+            # print(people_data)
+    
+    return people_data
+
+
+def check_status_code(response):
+    status_code = response.status_code
+    if status_code == 200:
+        return True
+    elif status_code == 401:
+        print("Token expired.")
+        return False
     else:
-        return "Unauthorized access"
-
-
+        print(f"Unauthorized access. Status code: {status_code}")
+        return False
 
 
 
 if __name__ == '__main__':
     # get_token()
-    data = get_data(0,10,'clients')
+    data = get_data(0,10,'people')
     # print(data)
     header = data[0].keys()
     csv_writer = csv.DictWriter(sys.stdout, fieldnames= header)
