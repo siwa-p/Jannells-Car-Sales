@@ -26,16 +26,13 @@ Table company {
 }
 
 Table sales_rep {
-    people_id int [pk, increment]
-    first_name varchar
-    last_name varchar
-    email varchar
-    address varchar
+    sales_rep_id int [pk, increment]  
+    people_id int  
 }
 
-
+Ref: sales_rep.people_id > people.people_id
 Ref: clients.company_id > company.company_id
 Ref: clients.people_id > people.people_id
 Ref: clients.client_id > client_contact_status.client_id
-Ref: clients.sales_rep_id > sales_rep.people_id
+Ref: clients.sales_rep_id > sales_rep.sales_rep_id
 Ref: client_contact_status.people_id > people.people_id
