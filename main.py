@@ -89,5 +89,5 @@ if __name__ == '__main__':
     db = os.getenv('PG_DB')
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 
-    # load_all('people', engine)
-    # load_all('clients', engine)
+    load_all('people', engine)
+    load_all('clients', engine)
