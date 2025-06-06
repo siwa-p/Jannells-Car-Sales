@@ -3,12 +3,14 @@ import json
 import os
 import csv
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 
 # get token using user-password dictionary
 def get_token():
     root_api = 'https://developyr-api.azurewebsites.net/api/auth'
-    username = 'admin'
-    password = 'password123'
+    username = os.getenv('API_USERNAME')
+    password = os.getenv('API_PASSWORD')
     creds = {'username': username, 'password': password}
     headers = {'Content-Type': 'application/json'}
 
@@ -17,10 +19,6 @@ def get_token():
     print(response)
     if response.status_code == 200:
         json_data = response.json()
-        print(json_data)
-        with open('token.json','w') as f:
-            json.dump(json_data,f)
-        
         # save to .env
         with open('.env', 'a') as env_file:
             env_file.write(f"\nAPI_TOKEN = {json_data['token']}\n")
@@ -35,10 +33,8 @@ def get_data(offset, limit, data_type: str):
                 'offset' : offset, 
                  'limit' : limit
                  }
-    with open('token.json') as f:
-        token_dict= json.load(f)
-    # token_dict = get_token()
-    token = token_dict['token']
+    load_dotenv()
+    token = os.getenv('API_TOKEN')
     base_URL = 'https://developyr-api.azurewebsites.net/api'
     api = f"{base_URL}/{data_type}"
     headers = {'Authorization': f'Bearer {token}'}
@@ -46,11 +42,9 @@ def get_data(offset, limit, data_type: str):
     response = requests.get(api, headers=headers, params=keys_dict)
     is_response = check_status_code(response)
     if not is_response:
-        get_token()
-        with open('token.json') as f:
-            token_dict= json.load(f)
-    # token_dict = get_token()
-        token = token_dict['token']
+        get_token()    
+        load_dotenv
+        token = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(api, headers=headers, params=keys_dict)
     
