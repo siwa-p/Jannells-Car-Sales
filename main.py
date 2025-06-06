@@ -3,8 +3,11 @@ import json
 import os
 import csv
 import sys
+import pandas as pd
+from sqlalchemy import create_engine
 from dotenv import load_dotenv
-load_dotenv()
+
+load_dotenv(override=True)
 
 # get token using user-password dictionary
 def get_token():
@@ -19,10 +22,14 @@ def get_token():
     print(response)
     if response.status_code == 200:
         json_data = response.json()
-        # save to .env
-        with open('.env', 'a') as env_file:
-            env_file.write(f"\nAPI_TOKEN = {json_data['token']}\n")
-        
+        # save to .env and replace existing
+        with open('.env', 'r') as file:
+            lines = file.readlines()
+        with open('.env', 'w') as file:
+            for line in lines:
+                if not line.strip().startswith('API_TOKEN'):
+                    file.write(line)
+            file.write(f"API_TOKEN={json_data['token']}\n")
         return json_data
     else:
         return "Unsuccessful"
@@ -33,7 +40,6 @@ def get_data(offset, limit, data_type: str):
                 'offset' : offset, 
                  'limit' : limit
                  }
-    load_dotenv()
     token = os.getenv('API_TOKEN')
     base_URL = 'https://developyr-api.azurewebsites.net/api'
     api = f"{base_URL}/{data_type}"
@@ -43,7 +49,7 @@ def get_data(offset, limit, data_type: str):
     is_response = check_status_code(response)
     if not is_response:
         get_token()    
-        load_dotenv
+        load_dotenv()
         token = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(api, headers=headers, params=keys_dict)
@@ -65,13 +71,28 @@ def check_status_code(response):
         print(f"Unauthorized access. Status code: {status_code}")
         return False
 
+def json_to_postgres(data, table_name:str):
+    user = os.getenv('PG_USER')
+    password = os.getenv('PG_PASSWORD')
+    host = os.getenv('PG_HOST')
+    port = os.getenv('PG_PORT')
+    db = os.getenv('PG_DB')
+    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
+
+    data_df = pd.DataFrame(data)
+
+    table_name = table_name
+    data_df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')  # header first
+    data_df.to_sql(name=table_name, con=engine, if_exists='append')
+
 
 if __name__ == '__main__':
     # get_token()
     data = get_data(0,10,'people')
+    json_to_postgres(data, 'people')
     # print(data)
-    header = data[0].keys()
-    csv_writer = csv.DictWriter(sys.stdout, fieldnames= header)
-    # print(csv_writer)
-    csv_writer.writeheader()
-    csv_writer.writerows(data)
+    # header = data[0].keys()
+    # csv_writer = csv.DictWriter(sys.stdout, fieldnames= header)
+    # # print(csv_writer)
+    # csv_writer.writeheader()
+    # csv_writer.writerows(data)
