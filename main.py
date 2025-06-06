@@ -66,8 +66,8 @@ def check_status_code(response):
         return False
 
 
-
 if __name__ == '__main__':
+    # get_token()
     data = get_data(0,10,'people')
     # print(data)
     header = data[0].keys()
