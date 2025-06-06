@@ -4,6 +4,7 @@ import os
 import csv
 import sys
 import pandas as pd
+from utils import write_to_dotenv, check_status_code
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
@@ -22,19 +23,12 @@ def get_token():
     print(response)
     if response.status_code == 200:
         json_data = response.json()
-        # save to .env and replace existing
-        with open('.env', 'r') as file:
-            lines = file.readlines()
-        with open('.env', 'w') as file:
-            for line in lines:
-                if not line.strip().startswith('API_TOKEN'):
-                    file.write(line)
-            file.write(f"API_TOKEN={json_data['token']}\n")
-        return json_data
+        write_to_dotenv(json_data)
+        return "token obtained"
     else:
-        return "Unsuccessful"
+        return "token not obtained"
 
-# authenticate to the api using the token
+
 def get_data(offset, limit, data_type: str):
     keys_dict = {
                 'offset' : offset, 
@@ -55,21 +49,10 @@ def get_data(offset, limit, data_type: str):
         response = requests.get(api, headers=headers, params=keys_dict)
     
     people_data = response.json()['data']
-            # print(people_data)
-    
+
     return people_data
 
 
-def check_status_code(response):
-    status_code = response.status_code
-    if status_code == 200:
-        return True
-    elif status_code == 401:
-        print("Token expired.")
-        return False
-    else:
-        print(f"Unauthorized access. Status code: {status_code}")
-        return False
 
 def json_to_postgres(data, table_name:str):
     user = os.getenv('PG_USER')
