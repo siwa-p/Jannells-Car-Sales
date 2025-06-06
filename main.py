@@ -29,7 +29,7 @@ def get_token():
         return "token not obtained"
 
 
-def get_data(offset, limit, data_type: str):
+def get_data(offset, limit, data_type: str = 'people'):
     keys_dict = {
                 'offset' : offset, 
                  'limit' : limit
@@ -43,18 +43,45 @@ def get_data(offset, limit, data_type: str):
     is_response = check_status_code(response)
     if not is_response:
         get_token()    
-        load_dotenv()
+        load_dotenv(override=True)
         token = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(api, headers=headers, params=keys_dict)
     
-    people_data = response.json()['data']
+    data = response.json()['data']
 
-    return people_data
+    return data
 
 
 
-def json_to_postgres(data, table_name:str):
+def json_to_postgres(data, table_name: str, engine):
+    data_df = pd.DataFrame(data)
+    data_df.to_sql(name=table_name, con=engine, if_exists='append', index=False)
+
+
+def load_header(sample_data, table_name, engine):
+    data_df= pd.DataFrame(sample_data)
+    data_df.head(0).to_sql(name=table_name, con=engine, if_exists='replace', index=False)  # create table with headers
+
+def load_all(table_name:str, engine):
+    is_data = None
+    sample_data = get_data(0,5,table_name)
+    if sample_data:
+        is_data = True
+        load_header(sample_data, table_name, engine)
+    offset = 0
+    limit = 10
+    while is_data:
+        data_queried = get_data(offset, limit, table_name)
+        if not data_queried:
+            is_data = False
+        else:
+            json_to_postgres(data_queried,table_name,engine)
+            offset += limit
+
+
+
+if __name__ == '__main__':
     user = os.getenv('PG_USER')
     password = os.getenv('PG_PASSWORD')
     host = os.getenv('PG_HOST')
@@ -62,18 +89,12 @@ def json_to_postgres(data, table_name:str):
     db = os.getenv('PG_DB')
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 
-    data_df = pd.DataFrame(data)
-
-    table_name = table_name
-    data_df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')  # header first
-    data_df.to_sql(name=table_name, con=engine, if_exists='append')
-
-
-if __name__ == '__main__':
+    load_all('people', engine)
+    load_all('clients', engine)
     # get_token()
-    data = get_data(0,10,'people')
-    json_to_postgres(data, 'people')
-    # print(data)
+    # data = get_data(40,10,'people')
+    # json_to_postgres(data, 'people', engine)
+    # # print(data)
     # header = data[0].keys()
     # csv_writer = csv.DictWriter(sys.stdout, fieldnames= header)
     # # print(csv_writer)
