@@ -1,0 +1,38 @@
+Table clients {
+    client_id varchar [pk]
+    company_id int
+    people_id int
+    sales_rep_id int
+}
+
+Table people {
+    people_id int [pk, increment]
+    first_name varchar
+    last_name varchar
+    email varchar
+    address varchar
+}
+
+Table client_contact_status {
+    client_id int [pk]
+    people_id int
+    can_email boolean
+    can_call boolean
+}
+
+Table company {
+    company_id int
+    company varchar
+}
+
+Table sales_rep {
+    sales_rep_id int [pk, increment]  
+    people_id int  
+}
+
+Ref: sales_rep.people_id > people.people_id
+Ref: clients.company_id > company.company_id
+Ref: clients.people_id > people.people_id
+Ref: clients.client_id > client_contact_status.client_id
+Ref: clients.sales_rep_id > sales_rep.sales_rep_id
+Ref: client_contact_status.people_id > people.people_id
