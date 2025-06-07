@@ -26,7 +26,7 @@ CREATE TABLE dim_client_contact_status (
 	status_id SERIAL,
  name varchar(128),
 	client_id VARCHAR(128),
-	people_id VARCHAR(128),
+	people_id integer,
 	can_call BOOLEAN,
 	can_email BOOLEAN,
 	PRIMARY KEY (status_id)
@@ -43,7 +43,7 @@ drop table if exists dim_sales_rep;
 CREATE TABLE dim_sales_rep (
 	sales_rep_id SERIAL,
  name varchar(128),
-	people_id VARCHAR(128),-- only 2 have id
+	people_id integer,-- only 2 have id
 	PRIMARY KEY (sales_rep_id)
 );
 
@@ -82,9 +82,9 @@ LEFT JOIN dim_people p
 -- dim_client_contact_status
 -- first make boolean
 
-ALTER TABLE client_contact_status
-ADD COLUMN can_email_boolean BOOLEAN,
-ADD COLUMN can_call_boolean BOOLEAN;
+-- ALTER TABLE client_contact_status
+-- ADD COLUMN can_email_boolean BOOLEAN,
+-- ADD COLUMN can_call_boolean BOOLEAN;
 
 UPDATE client_contact_status
 SET can_email_boolean = CASE 
@@ -141,4 +141,45 @@ left join dim_sales_rep dsr
 
 -- No that we have the tables populated
 -- We need to assign foreign keys
+
+-- Add foreign keys to dim_clients
+ALTER TABLE dim_clients
+ADD CONSTRAINT fk_clients_company
+    FOREIGN KEY (company_id) REFERENCES dim_company(company_id),
+ADD CONSTRAINT fk_clients_people
+    FOREIGN KEY (people_id) REFERENCES dim_people(people_id),
+ADD CONSTRAINT fk_clients_sales_rep
+    FOREIGN KEY (sales_rep_id) REFERENCES dim_sales_rep(sales_rep_id);
+
+-- Add foreign keys to dim_client_contact_status
+ALTER TABLE dim_client_contact_status
+ADD CONSTRAINT fk_contact_status_client
+    FOREIGN KEY (client_id) REFERENCES dim_clients(client_id),
+ADD CONSTRAINT fk_contact_status_people
+    FOREIGN KEY (people_id) REFERENCES dim_people(people_id);
+
+-- Add foreign key to dim_sales_rep
+ALTER TABLE dim_sales_rep
+ADD CONSTRAINT fk_sales_rep_people
+    FOREIGN KEY (people_id) REFERENCES dim_people(people_id);
+
+-- lets try a join
+select dsr.name as sales_rep_name, c.name as client_name, cc.can_call, cc.can_email
+from dim_clients c
+inner join dim_client_contact_status cc
+on cc.client_id = c.client_id
+inner join dim_sales_rep dsr
+on dsr.sales_rep_id = c.sales_rep_id;
+
+
+select * from dim_clients;
+select * from dim_client_contact_status;
+-- DROP ORIGINAL TABLES
+-- drop table if exists clients;
+-- drop table if exists people;
+-- drop table if exists client_contact_status;
+
+
+
+
 
