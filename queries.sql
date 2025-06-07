@@ -15,8 +15,10 @@
 -- 	phone char(12),
 -- 	PRIMARY KEY (people_id)
 -- );
+
 -- CREATE TABLE dim_client_contact_status (
 -- 	status_id SERIAL,
+--  name varchar(128),
 -- 	client_id VARCHAR(128),
 -- 	people_id VARCHAR(128),
 -- 	can_call BOOLEAN,
@@ -81,5 +83,46 @@ select * from dim_sales_rep;
 
 
 -- dim_client_contact_status
+-- first make boolean
+
+ALTER TABLE client_contact_status
+ADD COLUMN can_email_boolean BOOLEAN,
+ADD COLUMN can_call_boolean BOOLEAN;
+
+UPDATE client_contact_status
+SET can_email_boolean = CASE 
+    WHEN can_email = 1 THEN TRUE
+    WHEN can_email = 0 THEN FALSE
+    else NULL
+end;
+
+update client_contact_status
+set can_call_boolean = case
+    when can_call = 1 then TRUE
+    when can_call =0 then FALSE
+    else NULL
+end;
+
+
+-- now insert into dim_client_contact_status
+
+insert into dim_client_contact_status(
+    client_id, name, people_id, can_email, can_call
+)
+select DISTINCT
+    cc.id as client_id,
+    cc.name as name,
+    p.people_id as people_id,
+    cc.can_email_boolean::boolean as can_email,
+    cc.can_call_boolean::boolean as can_call
+from client_contact_status as cc
+left join dim_people p
+    on concat(p.first_name, ' ', p.last_name) = cc.name
+
+-- check
+select * from dim_client_contact_status;
+-- None of the people in client_contact_status are people !!
+-- maybe keep the names
+
 
 
