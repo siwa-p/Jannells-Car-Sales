@@ -1,42 +1,42 @@
--- -- create empty tables with primary keys
--- CREATE TABLE dim_clients (
---   client_id VARCHAR(128),
---   company_id SERIAL,
---   people_id SERIAL,
---   sales_rep_id SERIAL,
---   PRIMARY KEY (client_id)
--- );
--- CREATE TABLE dim_people (
--- 	people_id SERIAL,
--- 	first_name VARCHAR(128),
--- 	last_name VARCHAR(128),
--- 	email VARCHAR(128),
--- 	address VARCHAR(128),
--- 	phone char(12),
--- 	PRIMARY KEY (people_id)
--- );
+-- create empty tables with primary keys
+CREATE TABLE dim_clients (
+  client_id VARCHAR(128),
+  company_id SERIAL,
+  people_id SERIAL,
+  sales_rep_id SERIAL,
+  PRIMARY KEY (client_id)
+);
+CREATE TABLE dim_people (
+	people_id SERIAL,
+	first_name VARCHAR(128),
+	last_name VARCHAR(128),
+	email VARCHAR(128),
+	address VARCHAR(128),
+	phone char(12),
+	PRIMARY KEY (people_id)
+);
 
--- CREATE TABLE dim_client_contact_status (
--- 	status_id SERIAL,
---  name varchar(128),
--- 	client_id VARCHAR(128),
--- 	people_id VARCHAR(128),
--- 	can_call BOOLEAN,
--- 	can_email BOOLEAN,
--- 	PRIMARY KEY (status_id)
--- );
--- CREATE TABLE dim_company (
--- 	company_id SERIAL,
--- 	company_name VARCHAR(128),
--- 	PRIMARY KEY (company_id)
--- );
+CREATE TABLE dim_client_contact_status (
+	status_id SERIAL,
+ name varchar(128),
+	client_id VARCHAR(128),
+	people_id VARCHAR(128),
+	can_call BOOLEAN,
+	can_email BOOLEAN,
+	PRIMARY KEY (status_id)
+);
+CREATE TABLE dim_company (
+	company_id SERIAL,
+	company_name VARCHAR(128),
+	PRIMARY KEY (company_id)
+);
 	
--- CREATE TABLE dim_sales_rep (
--- 	sales_rep_id SERIAL,
---  name varchar(128),
--- 	people_id VARCHAR(128),-- only 2 have id
--- 	PRIMARY KEY (sales_rep_id)
--- );
+CREATE TABLE dim_sales_rep (
+	sales_rep_id SERIAL,
+ name varchar(128),
+	people_id VARCHAR(128),-- only 2 have id
+	PRIMARY KEY (sales_rep_id)
+);
 
 -- Insert unique company names from the clients table into dim_company
 INSERT INTO dim_company (company_name)
@@ -76,9 +76,10 @@ SELECT distinct
     p.people_id as people_id
 FROM clients c
 LEFT JOIN dim_people p
-    ON CONCAT(p.first_name, ' ', p.last_name) = c.sales_rep
+    ON CONCAT(p.first_name, ' ', p.last_name) = c.sales_rep;
 
-select * from dim_sales_rep;
+
+-- select * from dim_sales_rep;
 
 
 
@@ -117,12 +118,17 @@ select DISTINCT
     cc.can_call_boolean::boolean as can_call
 from client_contact_status as cc
 left join dim_people p
-    on concat(p.first_name, ' ', p.last_name) = cc.name
+    on concat(p.first_name, ' ', p.last_name) = cc.name;
 
 -- check
 select * from dim_client_contact_status;
 -- None of the people in client_contact_status are people !!
 -- maybe keep the names
 
+
+-- list all tables
+SELECT table_name, column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public';
 
 
