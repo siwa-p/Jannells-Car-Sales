@@ -27,7 +27,8 @@ Table dim_company {
 }
 
 Table dim_sales_rep {
-    sales_rep_id int [pk, increment]  
+    sales_rep_id int [pk, increment] 
+    name varchar 
     people_id int  
 }
 
