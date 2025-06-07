@@ -173,7 +173,10 @@ on dsr.sales_rep_id = c.sales_rep_id;
 
 
 select * from dim_clients;
+select * from clients;
 select * from dim_client_contact_status;
+select * from people;
+
 -- DROP ORIGINAL TABLES
 -- drop table if exists clients;
 -- drop table if exists people;
