@@ -47,7 +47,8 @@ CREATE TABLE dim_sales_rep (
 	PRIMARY KEY (sales_rep_id)
 );
 
--- Insert unique company names from the clients table into dim_company
+-- Insert unique company names from the clients table 
+--              into dim_company
 INSERT INTO dim_company (company_name)
 SELECT DISTINCT company
 FROM clients;
