@@ -1,11 +1,11 @@
-Table clients {
+Table dim_clients {
     client_id varchar [pk]
     company_id int
     people_id int
     sales_rep_id int
 }
 
-Table people {
+Table dim_people {
     people_id int [pk, increment]
     first_name varchar
     last_name varchar
@@ -13,26 +13,28 @@ Table people {
     address varchar
 }
 
-Table client_contact_status {
-    client_id int [pk]
+Table dim_client_contact_status {
+    status_id int [pk, increment]
+    client_id int 
     people_id int
     can_email boolean
     can_call boolean
 }
 
-Table company {
+Table dim_company {
     company_id int
     company varchar
 }
 
-Table sales_rep {
-    sales_rep_id int [pk, increment]  
+Table dim_sales_rep {
+    sales_rep_id int [pk, increment] 
+    name varchar 
     people_id int  
 }
 
-Ref: sales_rep.people_id > people.people_id
-Ref: clients.company_id > company.company_id
-Ref: clients.people_id > people.people_id
-Ref: clients.client_id > client_contact_status.client_id
-Ref: clients.sales_rep_id > sales_rep.sales_rep_id
-Ref: client_contact_status.people_id > people.people_id
+Ref: dim_sales_rep.people_id > dim_people.people_id
+Ref: dim_clients.company_id > dim_company.company_id
+Ref: dim_clients.people_id > dim_people.people_id
+Ref: dim_clients.client_id > dim_client_contact_status.client_id
+Ref: dim_clients.sales_rep_id > dim_sales_rep.sales_rep_id
+Ref: dim_client_contact_status.people_id > dim_people.people_id
