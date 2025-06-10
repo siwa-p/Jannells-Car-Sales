@@ -1,5 +1,5 @@
 CREATE OR REPLACE PROCEDURE PerformDataCleaning()
-LANGUAGE plpgsql
+LANGUAGE plpgsql 
 AS $$
 BEGIN
 
