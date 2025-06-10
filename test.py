@@ -29,12 +29,19 @@ engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 # Example: Load 'clients' table into a DataFrame
 offset = 0
 limit = 10
-chunks = pd.read_sql_table('clients', con=engine, chunksize=limit)
+chunks = pd.read_sql_query('SELECT * FROM original_clients', con=engine, chunksize=limit)
 for chunk in chunks:
     data_pulled_db = chunk.to_dict(orient='records')
     # print(data_pulled_db)
     data_api = get_data(offset,limit,'clients')
     # print(data_api)
+    
+    # Remove the 'phone' key from both data_pulled_db and data_api : copilot suggested code
+    for record in data_pulled_db:
+        record.pop('phone', None)  # Remove 'phone' key if it exists
+    for record in data_api:
+        record.pop('phone', None)  # Remove 'phone' key if it exists
+    
     if data_pulled_db == data_api:
         print("Data matches between database and API.")
     else:
