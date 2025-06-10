@@ -24,7 +24,7 @@ CREATE TABLE dim_people (
 drop table if exists dim_client_contact_status;
 CREATE TABLE dim_client_contact_status (
 	status_id SERIAL,
- name varchar(128),
+    name varchar(128),
 	client_id VARCHAR(128),
 	people_id integer,
 	can_call BOOLEAN,
@@ -173,10 +173,59 @@ inner join dim_sales_rep dsr
 on dsr.sales_rep_id = c.sales_rep_id;
 
 
-select * from dim_clients;
+
+-- Andrew's code
+-- Adding a first name & last name column to clients
+ALTER TABLE dim_clients
+-- ADD first_name varchar(255),
+ADD last_name varchar(255);
+
+-- Selecting the substring of name before the space (' ') to get the first name
+UPDATE dim_clients
+SET first_name = (SELECT SUBSTRING(name, 1, STRPOS(name, ' ') - 1));
+
+
+-- Selecting the substring of name after the space (' ') to get the last name
+UPDATE dim_clients
+SET last_name = (SELECT SUBSTRING(name, STRPOS(name, ' ') + 1));
+
+-- Removing the original name column from clients, redundant
+ALTER TABLE dim_clients
+DROP COLUMN name;
+
+-- Now that the name column is split, insert all clients into the people table
+INSERT INTO dim_people (first_name, last_name)
+SELECT DISTINCT dc.first_name, dc.last_name
+FROM dim_clients dc
+LEFT JOIN dim_people dp
+    ON dc.first_name = dp.first_name AND dc.last_name = dp.last_name
+WHERE dp.people_id IS NULL;
+
+-- Setting the people_id of CLIENTS equal to the people_id of PEOPLE that was generated after the insert via SERIAL
+UPDATE dim_clients AS dc
+SET people_id = dp.people_id
+	FROM dim_people as dp
+	WHERE dp.first_name = dc.first_name
+	AND dp.last_name = dc.last_name;
+
+
+-- Update dim_client_contact_status with missing names from dim_clients
+UPDATE dim_client_contact_status dcs
+SET name = dc.first_name || ' ' || dc.last_name
+FROM dim_clients dc
+WHERE dcs.client_id = dc.client_id
+    AND dcs.name IS NULL;
+
+
+
+select * from dim_client_contact_status;
+
+select * from dim_clients
+where last_name like 'Estes';
 select * from clients;
 select * from dim_client_contact_status;
 select * from people;
+select * from dim_people;
 
 -- DROP ORIGINAL TABLES
 -- drop table if exists clients;
