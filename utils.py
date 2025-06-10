@@ -1,3 +1,5 @@
+import re
+from sqlalchemy import text
 
  # save to .env and replace existing
 def write_to_dotenv(json_data):
