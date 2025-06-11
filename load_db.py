@@ -133,7 +133,7 @@ def load_csv(filepath:str, engine):
         for row in reader:
             # print(row)
             data_read.append(row)
-    table_name = 'csv_data'
+    table_name = 'client_contact_status'
     json_to_postgres_csv(data_read, table_name, engine)
     return None
         
