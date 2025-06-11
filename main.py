@@ -21,9 +21,8 @@ if __name__ == '__main__':
     # load_all('clients', engine)
     # load_csv(csv_name, engine)
     
-    # run sql from postgres engine
-    # run creating_tables.sql
-    # run inserting_tables.sql
+    # run sql from stored procs
+    # run table_overview.sql 
     
     # now use this SELECT * FROM client_contact_status_view to convert to csv
     df = pd.read_sql("SELECT * FROM client_contact_status_view", engine)

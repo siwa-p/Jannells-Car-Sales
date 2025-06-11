@@ -1,0 +1,15 @@
+CREATE OR REPLACE VIEW original_clients AS (
+	SELECT
+		fc.client_id AS id,
+		CONCAT(dp.first_name, ' ', dp.last_name) AS name,
+		dc.company_name AS company,
+		CONCAT(dsr.first_name, ' ', dsr.last_name) AS sales_rep,
+		dp.phone AS phone,
+		dp.email AS email,
+		dp.address AS address
+		FROM fact_clients fc
+		LEFT JOIN dim_people dp ON fc.people_id = dp.people_id
+		LEFT JOIN dim_company dc ON fc.company_id = dc.company_id
+		LEFT JOIN dim_sales_rep dsr ON fc.sales_rep_id = dsr.sales_rep_id
+		LEFT JOIN dim_client_contact_status dccs ON fc.client_id = dccs.client_id
+);
