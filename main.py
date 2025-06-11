@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 from load_db import load_all, load_csv
 from test import test_db
-from utils import run_sql
+
 if __name__ == '__main__':
     user = os.getenv('PG_USER')
     password = os.getenv('PG_PASSWORD')
@@ -18,15 +18,15 @@ if __name__ == '__main__':
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
     
     # load_all('people', engine)
-    # load_all('clients', engine)
-    # load_csv(csv_name, engine)
+    load_all('clients', engine)
+    load_csv(csv_name, engine)
     
-    # run sql from stored procs
-    # run table_overview.sql 
+    # # run sql from stored procs
+    # # run table_overview.sql 
     
-    # now use this SELECT * FROM client_contact_status_view to convert to csv
-    df = pd.read_sql("SELECT * FROM client_contact_status_view", engine)
-    df.to_csv("data/client_contact_status_view.csv", index=False)
+    # # now use this SELECT * FROM client_contact_status_view to convert to csv
+    # df = pd.read_sql("SELECT * FROM client_contact_status_view", engine)
+    # df.to_csv("data/client_contact_status_view.csv", index=False)
     
-    # finally test
-    test_db()
+    # # finally test
+    # test_db()

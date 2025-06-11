@@ -1,7 +1,5 @@
-import re
-from sqlalchemy import text
 
- # save to .env and replace existing
+# save to .env and replace existing
 def write_to_dotenv(json_data):
     with open('.env', 'r') as file:
         lines = file.readlines()
@@ -22,3 +20,5 @@ def check_status_code(response):
     else:
         print(f"Unauthorized access. Status code: {status_code}")
         return False
+
+
