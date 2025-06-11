@@ -1,29 +1,66 @@
-## Jannell's Car Sales
+# Jannell's Car Sales
 
-### Introduction
-The purpose of this lab is to practice accessing data from different sources, combine them into a database, and query the database to get information for the stakeholders.
+## Overview
 
-#### Part 1
-Using the provided BRD and API documentation, you will need to create a table that will hold the data that you retrieve from the API in your postgres database. 
+This project demonstrates the implementation of a complete data engineering pipeline for Jannell's Car Sales. The goal was to integrate data from multiple sources, design a normalized database schema, and generate actionable insights for stakeholders. The project was part of a team project for the Data Engineering Bootcamp with Nashville Software School. I worked with my teammates [Andrew Gerhold](https://github.com/acgerhold) and [Rosemary Chadwick](https://github.com/Rosemary-Chadwick) and [Alison](https://github.com/AlisonCG1)
 
+## Key Features
 
-### Part 2
-Given the dataset `client_contact_status.csv`, create an ER Diagram that connects this dataset to the previous data you have already stored in the postgres database. Keep in mind the normal forms when creating the tables. 
+### 1. API Integration
 
-Next, process the csv data and load that it into your database. 
+- Authenticated with the API using a token-based system using python.
+- Retrieved paginated data and dynamically created database tables to store the data.
+- Automated the ingestion process using Python and SQLAlchemy.
 
-### Part 3
-Create an Excel spreadsheet that meets the business requirements given in the BRD.
+---
 
-### Stretch Goal
-Come up with a way to validate the data.  In the real world you will be dealing with many types of sensitive data that, if changed, can cause errors that may cost the company money.  How would you verify that the data coming from the API / CSV is the same data that you put in the database? 
+### 2. CSV Data
 
-### Presentation
-You will create a slide deck covering the following points: 
-- Talk about Architectural Decisions
-- Talk about any challenges you had to overcome
-- Talk about anything that you would do differently
-- If there is anything that you tried, but could not get to work, discuss it
+- Loaded the csv data using pandas and sqlalchemy into the PostgreSQL database.
 
-### Note
-Retain the data you loaded to postgres. It will be needed for future labs.
+---
+
+### 3. Database Design
+
+- Designed an ER Diagram to connect the CSV data (`client_contact_status.csv`) with the API data.
+- Created new tables and inserted data into them with stored procedures in PostgreSQL.
+- Transformations were done to load into the database while maintaining referential integrity.
+
+- Extended the database schema to include normalized tables in accordance with best practices.
+
+---
+
+### 4. Data Validation
+
+- Initial validation with SQL queries
+- Wrote Python scripts to validate data between the API, and database.
+
+### 5. Business Reporting
+
+- Created a consolidated view (`client_contact_status_view`) by joining multiple tables.
+- Queried the database to extract insights based on business requirements.
+- Exported the results to a CSV file and designed an Excel report for stakeholders.
+
+- **Outcome**: Delivered a stakeholder-friendly report with actionable insights.
+
+---
+
+## Skills learned
+
+- **Data Engineering**:
+  - API integration, data transformation, and database design.
+- **Database Management**:
+  - PostgreSQL schema design, query optimization, and stored procedures.
+- **Python Programming**:
+  - Automating workflows with libraries like `requests`, `pandas`, and `sqlalchemy`.
+- **Data Validation**:
+  - Ensuring data consistency across multiple sources.
+- **Reporting**:
+  - Creating stakeholder-friendly reports in Excel.
+
+---
+
+## Future Improvements
+
+- Automate the data validation as the data is loaded to database.
+- Implement more robust error handling for API responses.
