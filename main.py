@@ -1,11 +1,7 @@
-
-import requests
 import os
 import pandas as pd
-from utils import write_to_dotenv, check_status_code
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
-from load_db import load_all, load_csv
+from load_db import load_all_pandas, load_all_sqlalchemy, load_csv_pandas, load_csv_sqlalchemy
 from test import test_db
 
 if __name__ == '__main__':
@@ -17,9 +13,13 @@ if __name__ == '__main__':
     csv_name = 'data/client_contact_status.csv'
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
     
-    # load_all('people', engine)
-    load_all('clients', engine)
-    load_csv(csv_name, engine)
+    # load_all_pandas('people', engine)
+    # load_all_pandas('clients', engine)
+    # load_csv_pandas(csv_name, engine)
+    
+    # load_all_sqlalchemy('people', engine)
+    load_all_sqlalchemy('clients', engine)
+    load_csv_sqlalchemy(csv_name, engine)    
     
     # # run sql from stored procs
     # # run table_overview.sql 

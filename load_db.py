@@ -1,8 +1,7 @@
 import requests
 import os
 import pandas as pd
-from utils import write_to_dotenv, check_status_code
-from sqlalchemy import create_engine, insert, Table, MetaData, Column, String, Boolean, Integer
+from utils import write_to_dotenv, check_status_code, json_to_postgres_sqlalchemy, json_to_postgres_csv, json_to_postgres_pandas
 from dotenv import load_dotenv
 import csv
 
@@ -42,72 +41,22 @@ def get_data(offset:int=0, limit:int = 10, data_type: str = 'people'):
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(api, headers=headers, params=keys_dict)
     data = response.json()['data']
-    return data
+    return data    
 
-# def json_to_postgres(data, table_name: str, engine):
-#     data_df = pd.DataFrame(data)
-#     data_df.to_sql(name=table_name, con=engine, if_exists='append', index=False)
-
-def json_to_postgres_api(data, table_name:str, engine):
-    # data is a list of dictionaries
-    metadata = MetaData()
-    if metadata.tables:
-        table = metadata.tables[table_name]
-    else:
-        table = Table(
-            table_name,
-            metadata,
-            Column('id', String, primary_key=True),
-            Column('company', String),
-            Column('name', String),
-            Column('address', String),
-            Column('email', String),
-            Column('phone', String),
-            Column('sales_rep', String),
-        )
-        metadata.create_all(engine) 
-    with engine.connect() as connection:
-        for d in data:
-            stmt = insert(table).values(d)
-            connection.execute(stmt)
-        connection.commit()
-    
-
-def json_to_postgres_csv(data, table_name:str, engine):
-    # data is a list of dictionaries
-    metadata = MetaData()
-    if metadata.tables:
-        table = metadata.tables[table_name]
-    else:
-        table = Table(
-            table_name,
-            metadata,
-            Column('id', String, primary_key=True),
-            Column('name', String),
-            Column('can_email', Integer),
-            Column('can_call', Integer),
-        )
-        metadata.create_all(engine) 
-    with engine.connect() as connection:
-        for d in data:
-            for key, value in d.items():
-                if value == 'null':
-                    d[key] = None
-            stmt = insert(table).values(d)
-            connection.execute(stmt)
-        connection.commit()
-    
 
 def load_header(sample_data, table_name, engine):
     data_df= pd.DataFrame(sample_data)
+    # To do : Fix data types before loading to sql
+    # print(data_df.dtypes)
     data_df.head(0).to_sql(name=table_name, con=engine, if_exists='replace', index=False)  # create table with headers
+    
 
-def load_all(table_name:str, engine):
+def load_all_pandas(table_name:str, engine):
     is_data = None
     sample_data = get_data(0,5,table_name)
     if sample_data:
         is_data = True
-        # load_header(sample_data, table_name, engine)
+        load_header(sample_data, table_name, engine)
     offset = 0
     limit = 10
     while is_data:
@@ -115,18 +64,39 @@ def load_all(table_name:str, engine):
         if not data_queried:
             is_data = False
         else:
-            json_to_postgres_api(data_queried,table_name,engine)
+            json_to_postgres_pandas(data_queried,table_name,engine)
             offset += limit
 
-## using Pandas
-# def load_csv(filepath:str, engine):
-#     df_iter = pd.read_csv(filepath, iterator=True, chunksize=100)
-#     df = next(df_iter)  # first chunk
-#     table_name = 'client_contact_status'
-#     df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')  # header first
-#     df.to_sql(name=table_name, con=engine, if_exists='append')
+def load_all_sqlalchemy(table_name:str, engine):
+    is_data = None
+    sample_data = get_data(0,5,table_name)
+    if sample_data:
+        is_data = True
+    offset = 0
+    limit = 10
+    while is_data:
+        data_queried = get_data(offset, limit, table_name)
+        if not data_queried:
+            is_data = False
+        else:
+            json_to_postgres_sqlalchemy(data_queried,table_name,engine)
+            offset += limit
 
-def load_csv(filepath:str, engine):
+# csv using Pandas
+def load_csv_pandas(filepath:str, engine):
+    df_iter = pd.read_csv(filepath, iterator=True, chunksize=100, index_col = None)
+    df = next(df_iter)  # first chunk
+    table_name = 'client_contact_status'
+    # cast data types
+    df['can_call'] = df['can_call'].astype('Int64')
+    df['can_email'] = df['can_email'].astype('Int64')
+    
+    df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace', index=False)  # header first
+    df.to_sql(name=table_name, con=engine, if_exists='append', index=False)
+
+
+# csv using sqlalchemy
+def load_csv_sqlalchemy(filepath:str, engine):
     data_read = []
     with open(filepath, 'r') as file:
         reader = csv.DictReader(file)
