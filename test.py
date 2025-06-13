@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 import pandas as pd
 import os
-from load_db import get_token, get_data
+from load_db import get_data
 from dotenv import load_dotenv
 '''
 The purpose of this module is to:
@@ -15,7 +15,7 @@ step 2: load them here
 '''
 # get the token
 # get_token()
-# load_dotenv(override=True)
+load_dotenv(override=True)
 
 user = os.getenv('PG_USER')
 password = os.getenv('PG_PASSWORD')
