@@ -31,6 +31,17 @@ class Clients(Base):
     def __repr__(self):
         return f"<Clients(id='{self.id}', company='{self.company}', name='{self.name}', address='{self.address}', email='{self.email}', phone='{self.phone}', sales_rep='{self.sales_rep}')>"
 
+class People(Base):
+    __tablename__ = 'people'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    first_name = Column('first_name', String)
+    last_name = Column('last_name', String)
+    email = Column('email', String)
+    address = Column('address', String)
+    
+    def __repr__(self):
+        return f"<People(first_name='{self.first_name}', last_name='{self.last_name}', email='{self.email}', address='{self.address}')>"
+    
 class clientcontactstatus(Base):
     __tablename__ = 'client_contact_status'
     id = Column('id', String, primary_key=True)
@@ -42,10 +53,10 @@ class clientcontactstatus(Base):
         return f"<ClientContactStatus(id='{self.id}', name='{self.name}', can_email={self.can_email}, can_call={self.can_call})>"    
 
 
-def insert_clients(data):
+def insert_records(data, model):
     try:
-        client_items = [Clients(**datum) for datum in data]
-        session.add_all(client_items)
+        items = [model(**datum) for datum in data]
+        session.add_all(items)
         session.commit()
     except Exception as e:
         session.rollback()
@@ -64,7 +75,7 @@ def insert_csv(data):
         session.rollback()
         print(f"Error inserting data: {e}")
 
-def load_api(table_name:str):
+def load_api(table_name:str, model):
     is_data = None
     sample_data = get_data(0,5,table_name)
     if sample_data:
@@ -76,7 +87,7 @@ def load_api(table_name:str):
         if not data_queried:
             is_data = False
         else:
-            insert_clients(data_queried)
+            insert_records(data_queried,model)
             offset += limit
 
 def load_csv(filepath:str):
@@ -94,19 +105,20 @@ if __name__ == '__main__':
     
     # Create tables if they do not exist
 
-    Session = sessionmaker(bind = engine)
-    session = Session()
-    Base.metadata.create_all(engine)
-    load_api('clients')
-    load_csv(csv_name)
-    session.close()
+    # Session = sessionmaker(bind = engine)
+    # session = Session()
+    # Base.metadata.create_all(engine)
+    # load_api('clients', Clients)
+    # load_api('people', People)
+    # load_csv(csv_name)
+    # session.close()
 
     # # run sql from stored procs
     # # run table_overview.sql 
     
     # now use this SELECT * FROM client_contact_status_view to convert to csv
-    # df = pd.read_sql("SELECT * FROM client_contact_status_view", engine)
-    # df.to_csv("data/client_contact_status_view.csv", index=False)
+    df = pd.read_sql("SELECT * FROM client_contact_status_view", engine)
+    df.to_csv("data/client_contact_status_view.csv", index=False)
     
     # finally test
-    # test_db()
+    test_db()

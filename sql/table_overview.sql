@@ -62,5 +62,11 @@ CREATE OR REPLACE VIEW original_clients AS (
 		LEFT JOIN dim_client_contact_status dccs ON fc.client_id = dccs.client_id
 );
 
--- select * from original_clients;
--- select * from clients;
+select * from original_clients;
+select * from clients;
+
+select * from client_contact_status_view;
+select * from dim_client_contact_status;
+
+drop table if exists clients;
+drop table if exists client_contact_status;
